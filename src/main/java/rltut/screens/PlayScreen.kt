@@ -1,80 +1,67 @@
-package rltut.screens;
+package rltut.screens
 
-import java.awt.event.KeyEvent;
+import asciiPanel.AsciiPanel
+import rltut.Creature
+import rltut.CreatureFactory
+import rltut.World
+import rltut.WorldBuilder
+import java.awt.event.KeyEvent
 
-import asciiPanel.AsciiPanel;
-import rltut.World;
-import rltut.WorldBuilder;
+class PlayScreen : Screen {
+    private val world: World
+    private var player: Creature
+    private val screenWidth = 80
+    private val screenHeight = 21
 
-public class PlayScreen implements Screen {
-    private World world;
-    private int centerX;
-    private int centerY;
-    private int screenWidth;
-    private int screenHeight;
-
-    public PlayScreen() {
-        screenWidth = 80;
-        screenHeight = 21;
-        createWorld();
+    init {
+        world = createWorld()
+        player = CreatureFactory(world).newPlayer()
     }
 
-    public void displayOutput(AsciiPanel terminal) {
-        int left = getScrollX();
-        int top = getScrollY();
-
-        displayTiles(terminal, left, top);
-        terminal.write('X', centerX - left, centerY - top);
+    override fun displayOutput(terminal: AsciiPanel) {
+        val left = scrollX
+        val top = scrollY
+        displayTiles(terminal, left, top)
+        terminal.write(player.glyph, player.x - left, player.y - top, player.color)
     }
 
-    public Screen respondToUserInput(KeyEvent key) {
-        switch (key.getKeyCode()) {
-            case KeyEvent.VK_ESCAPE: return new LoseScreen();
-            case KeyEvent.VK_ENTER: return new WinScreen();
-            case KeyEvent.VK_LEFT:
-            case KeyEvent.VK_H: scrollBy(-1, 0); break;
-            case KeyEvent.VK_RIGHT:
-            case KeyEvent.VK_L: scrollBy( 1, 0); break;
-            case KeyEvent.VK_UP:
-            case KeyEvent.VK_K: scrollBy( 0,-1); break;
-            case KeyEvent.VK_DOWN:
-            case KeyEvent.VK_J: scrollBy( 0, 1); break;
-            case KeyEvent.VK_Y: scrollBy(-1,-1); break;
-            case KeyEvent.VK_U: scrollBy( 1,-1); break;
-            case KeyEvent.VK_B: scrollBy(-1, 1); break;
-            case KeyEvent.VK_N: scrollBy( 1, 1); break;
+    override fun respondToUserInput(key: KeyEvent): Screen {
+        when (key.keyCode) {
+            KeyEvent.VK_ESCAPE -> return LoseScreen()
+            KeyEvent.VK_ENTER -> return WinScreen()
+            KeyEvent.VK_LEFT, KeyEvent.VK_H -> player.moveBy(-1, 0)
+            KeyEvent.VK_RIGHT, KeyEvent.VK_L -> player.moveBy(1, 0)
+            KeyEvent.VK_UP, KeyEvent.VK_K -> player.moveBy(0, -1)
+            KeyEvent.VK_DOWN, KeyEvent.VK_J -> player.moveBy(0, 1)
+            KeyEvent.VK_Y -> player.moveBy(-1, -1)
+            KeyEvent.VK_U -> player.moveBy(1, -1)
+            KeyEvent.VK_B -> player.moveBy(-1, 1)
+            KeyEvent.VK_N -> player.moveBy(1, 1)
         }
-
-        return this;
+        return this
     }
 
-    public int getScrollX() {
-        return Math.max(0, Math.min(centerX - screenWidth / 2, world.width() - screenWidth));
+    private val scrollX: Int
+        get() = 0.coerceAtLeast((player.x - screenWidth / 2)
+                 .coerceAtMost(world.width() - screenWidth))
+
+    private val scrollY: Int
+        get() = 0.coerceAtLeast((player.y - screenHeight / 2)
+                 .coerceAtMost(world.height() - screenHeight))
+
+    private fun createWorld(): World {
+        return WorldBuilder(90, 31)
+                .makeCaves()
+                .build()
     }
 
-    public int getScrollY() {
-        return Math.max(0, Math.min(centerY - screenHeight / 2, world.height() - screenHeight));
-    }
-
-    private void createWorld() {
-        world = new WorldBuilder(90, 31)
-                    .makeCaves()
-                    .build();
-    }
-
-    private void displayTiles(AsciiPanel terminal, int left, int top) {
-        for (int x = 0; x < screenWidth; x++) {
-            for (int y = 0; y < screenHeight; y++) {
-                int wx = x + left;
-                int wy = y + top;
-
-                terminal.write(world.glyph(wx, wy), x, y, world.color(wx, wy));
+    private fun displayTiles(terminal: AsciiPanel, left: Int, top: Int) {
+        for (x in 0 until screenWidth) {
+            for (y in 0 until screenHeight) {
+                val wx = x + left
+                val wy = y + top
+                terminal.write(world.glyph(wx, wy), x, y, world.color(wx, wy))
             }
         }
-    }
-
-    private void scrollBy(int mx, int my) {
-        centerX = Math.max(0, Math.min(centerX + mx, world.width() - 1));
-        centerY = Math.max(0, Math.min(centerY + my, world.height() - 1));
     }
 }

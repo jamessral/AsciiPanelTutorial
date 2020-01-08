@@ -1,11 +1,9 @@
-package rltut.screens;
+package rltut.screens
 
-import java.awt.event.KeyEvent;
+import asciiPanel.AsciiPanel
+import java.awt.event.KeyEvent
 
-import asciiPanel.AsciiPanel;
-
-public interface Screen {
-    public void displayOutput(AsciiPanel terminal);
-
-    public Screen respondToUserInput(KeyEvent key);
+interface Screen {
+    fun displayOutput(terminal: AsciiPanel)
+    fun respondToUserInput(key: KeyEvent): Screen
 }

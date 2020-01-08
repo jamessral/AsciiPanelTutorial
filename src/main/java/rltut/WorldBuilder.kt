@@ -1,61 +1,52 @@
-package rltut;
+package rltut
 
-public class WorldBuilder {
-    private int width;
-    private int height;
-    private Tile[][] tiles;
-
-    public WorldBuilder(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.tiles = new Tile[width][height];
+class WorldBuilder(private val width: Int, private val height: Int) {
+    private var tiles: Array<Array<Tile?>>
+    fun build(): World {
+        return World(tiles)
     }
 
-    public World build() {
-        return new World(tiles);
-    }
-
-    private WorldBuilder randomizeTiles() {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                tiles[x][y] = Math.random() < 0.5 ? Tile.FLOOR : Tile.WALL;
+    private fun randomizeTiles(): WorldBuilder {
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                tiles[x][y] = if (Math.random() < 0.5) Tile.FLOOR else Tile.WALL
             }
         }
-        return this;
+        return this
     }
 
-    private WorldBuilder smooth(int times) {
-        Tile[][] tiles2 = new Tile[width][height];
-        for (int time = 0; time < times; time++) {
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    int floors = 0;
-                    int rocks = 0;
-
-                    for (int ox = -1; ox < 2; ox++) {
-                        for (int oy = -1; oy < 2; oy++) {
+    private fun smooth(times: Int): WorldBuilder {
+        val tiles2 = Array(width) { arrayOfNulls<Tile>(height) }
+        for (time in 0 until times) {
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    var floors = 0
+                    var rocks = 0
+                    for (ox in -1..1) {
+                        for (oy in -1..1) {
                             if (x + ox < 0 || x + ox >= width || y + oy < 0 || y + oy >= height) {
-                                continue;
+                                continue
                             }
-
-                            if (tiles[x + ox][y + oy] == Tile.FLOOR) {
-                                floors++;
+                            if (tiles[x + ox][y + oy] === Tile.FLOOR) {
+                                floors++
                             } else {
-                                rocks++;
+                                rocks++
                             }
                         }
                     }
-                    tiles2[x][y] = floors >= rocks ? Tile.FLOOR : Tile.WALL;
+                    tiles2[x][y] = if (floors >= rocks) Tile.FLOOR else Tile.WALL
                 }
             }
-            tiles = tiles2;
+            tiles = tiles2
         }
-
-        return this;
+        return this
     }
 
-    public WorldBuilder makeCaves() {
-        return randomizeTiles().smooth(8);
+    fun makeCaves(): WorldBuilder {
+        return randomizeTiles().smooth(8)
+    }
+
+    init {
+        tiles = Array(width) { arrayOfNulls<Tile>(height) }
     }
 }

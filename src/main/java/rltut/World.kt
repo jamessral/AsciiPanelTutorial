@@ -1,34 +1,50 @@
-package rltut;
+package rltut
 
-import java.awt.Color;
+import java.awt.Color
 
-public class World {
-    private Tile [][] tiles;
-    private int width;
-    public int width() { return width; }
-
-    private int height;
-    public int height() { return height; }
-
-    public World(Tile[][] tiles) {
-        this.tiles = tiles;
-        this.width = tiles.length;
-        this.height = tiles[0].length;
+class World(private val tiles: Array<Array<Tile?>>) {
+    private val width: Int = tiles.size
+    fun width(): Int {
+        return width
     }
 
-    public Tile tile(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height) {
-            return Tile.BOUNDS;
+    private val height: Int = tiles[0].size
+    fun height(): Int {
+        return height
+    }
+
+    fun tile(x: Int, y: Int): Tile {
+        return if (x < 0 || x >= width || y < 0 || y >= height) {
+            Tile.BOUNDS
         } else {
-            return tiles[x][y];
+            tiles[x][y] ?: Tile.BOUNDS
         }
     }
 
-    public char glyph(int x, int y) {
-        return tile(x, y).glyph();
+    fun glyph(x: Int, y: Int): Char {
+        return tile(x, y).glyph()
     }
 
-    public Color color(int x, int y) {
-        return tile(x, y).color();
+    fun color(x: Int, y: Int): Color {
+        return tile(x, y).color()
+    }
+
+    fun dig(x: Int, y: Int) {
+        if (tile(x, y).isDiggable()) {
+            tiles[x][y] = Tile.FLOOR
+        }
+    }
+
+    fun addAtEmptyLocation(creature: Creature) {
+        var x = (Math.random() * width).toInt()
+        var y = (Math.random() * height).toInt()
+
+        while (!tile(x, y).isGround()) {
+            x = (Math.random() * width).toInt()
+            y = (Math.random() * height).toInt()
+        }
+
+        creature.x = x
+        creature.y = y
     }
 }

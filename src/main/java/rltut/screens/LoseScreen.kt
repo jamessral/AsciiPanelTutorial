@@ -1,17 +1,15 @@
-package rltut.screens;
+package rltut.screens
 
-import java.awt.event.KeyEvent;
+import asciiPanel.AsciiPanel
+import java.awt.event.KeyEvent
 
-import asciiPanel.AsciiPanel;
-
-public class LoseScreen implements Screen {
-
-    public void displayOutput(AsciiPanel terminal) {
-        terminal.write("You lost.", 1, 1);
-        terminal.writeCenter("-- press [enter] to restart --", 22);
+class LoseScreen : Screen {
+    override fun displayOutput(terminal: AsciiPanel) {
+        terminal.write("You lost.", 1, 1)
+        terminal.writeCenter("-- press [enter] to restart --", 22)
     }
 
-    public Screen respondToUserInput(KeyEvent key) {
-        return key.getKeyCode() == KeyEvent.VK_ENTER ? new PlayScreen() : this;
+    override fun respondToUserInput(key: KeyEvent): Screen {
+        return if (key.keyCode == KeyEvent.VK_ENTER) PlayScreen() else this
     }
 }

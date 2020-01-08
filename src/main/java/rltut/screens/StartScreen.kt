@@ -1,17 +1,15 @@
-package rltut.screens;
+package rltut.screens
 
-import java.awt.event.KeyEvent;
+import asciiPanel.AsciiPanel
+import java.awt.event.KeyEvent
 
-import asciiPanel.AsciiPanel;
-
-public class StartScreen implements Screen {
-
-    public void displayOutput(AsciiPanel terminal) {
-        terminal.write("rl tutorial", 1, 1);
-        terminal.writeCenter("-- press [enter] to start --", 22);
+class StartScreen : Screen {
+    override fun displayOutput(terminal: AsciiPanel) {
+        terminal.write("rl tutorial", 1, 1)
+        terminal.writeCenter("-- press [enter] to start --", 22)
     }
 
-    public Screen respondToUserInput(KeyEvent key) {
-        return key.getKeyCode() == KeyEvent.VK_ENTER ? new PlayScreen() : this;
+    override fun respondToUserInput(key: KeyEvent): Screen {
+        return if (key.keyCode == KeyEvent.VK_ENTER) PlayScreen() else this
     }
 }
